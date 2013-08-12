@@ -68,7 +68,7 @@ module Shrimp
         @result = nil
         raise RenderingError.new(@error) unless options[:fail_silently]
       end
-      @result
+      File.read(@outfile)
     end
 
     # Public: Returns the phantom rasterize command
@@ -81,11 +81,12 @@ module Shrimp
     # Public: renders to pdf
     # path  - the destination path defaults to outfile
     #
-    # Returns the path to the pdf file
-    def to_pdf(path=nil)
+    # Returns the contents of the pdf
+    def to_pdf(path=nil, keep_file=false)
       @outfile = File.expand_path(path) if path
-      self.run
-      @outfile
+      contents = self.run
+      File.delete(@outfile) unless keep_file
+      contents
     end
 
     # Public: renders to pdf
@@ -93,16 +94,8 @@ module Shrimp
     #
     # Returns a File Handle of the Resulting pdf
     def to_file(path=nil)
-      self.to_pdf(path)
+      self.to_pdf(path, true)
       File.new(@outfile)
-    end
-
-    # Public: renders to pdf
-    # path  - the destination path defaults to outfile
-    #
-    # Returns the binary string of the pdf
-    def to_string(path=nil)
-      File.open(self.to_pdf(path)).read
     end
 
     private

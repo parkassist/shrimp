@@ -80,26 +80,9 @@ describe Shrimp do
 
     context "rendering to a pdf" do
       before(:all) do
-        @phantom = Shrimp::Phantom.new(@executable, "file://#{testfile}", 
-                                       { :margin => "2cm" }, { })
-        @result  = @phantom.to_pdf("#{Dir.tmpdir}/test.pdf")
-      end
-
-      it "should return a path to pdf" do
-        @result.should be_a String
-        @result.should eq "#{Dir.tmpdir}/test.pdf"
-      end
-
-      it "should be a valid pdf" do
-        valid_pdf(@result)
-      end
-    end
-
-    context "rendering to a String" do
-      before(:all) do
         phantom = Shrimp::Phantom.new(@executable, "file://#{testfile}", 
                                       { :margin => "2cm" }, { })
-        @result = phantom.to_string("#{Dir.tmpdir}/test.pdf")
+        @result = phantom.to_pdf("#{Dir.tmpdir}/test.pdf")
       end
 
       it "should return the File IO String" do
@@ -119,12 +102,12 @@ describe Shrimp do
     end
 
     context "failing silently" do
-      it "should return nil" do
+      it "should return empty string" do
         Shrimp.configure do |config|
           config.fail_silently = true
         end
         phantom = Shrimp::Phantom.new(@executable, "file:///foo/bar")
-        phantom.run.should eq(nil)
+        phantom.run.should eq("")
       end
     end
   end

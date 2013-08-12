@@ -8,19 +8,16 @@ module Shrimp
 
     def call(env)
       @request = Rack::Request.new(env)
-      if render_as_pdf? #&& headers['Content-Type'] =~ /text\/html|application\/xhtml\+xml/
-        Phantom.new(Shrimp.configuration.options[:phantomjs], 
-                    @request.url.sub(%r{\.pdf}, ''), @options, 
-                    @request.cookies).to_pdf(render_to) 
-        file = File.open(render_to, "rb")
-        body = file.read
-        file.close
-        File.delete(render_to)
-        response                  = [body]
+      if render_as_pdf? 
+        response = Phantom.new(Shrimp.configuration.options[:phantomjs], 
+                               @request.url.sub(%r{\.pdf}, ''), @options, 
+                               @request.cookies).to_pdf
         headers                   = { }
-        headers["Content-Length"] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
+        headers["Content-Length"] = response.nil? ? '0' : 
+                                      (response.respond_to?(:bytesize) ? 
+                                      response.bytesize : response.size).to_s 
         headers["Content-Type"]   = "application/pdf"
-        [200, headers, response]
+        [200, headers, [response]]
       else
         @app.call(env)
       end
