@@ -62,18 +62,19 @@ module Shrimp
     # Returns the stdout output of phantomjs
     def run
       @error  = nil
-      @result = `#{cmd}`
+      puts cmd
+      @result = `/bin/bash -c "#{cmd}"`
       unless $?.exitstatus == 0
         @error  = @result
         @result = nil
         raise RenderingError.new(@error) unless options[:fail_silently]
       end
-      File.read(@outfile)
+      File.read(@outfile) unless @result.nil?
     end
 
     # Public: Returns the phantom rasterize command
     def cmd
-      [@executable, SCRIPT_FILE, @source.to_s, @outfile, @options[:format], 
+      [@executable, SCRIPT_FILE, "'#{@source.to_s}'", @outfile, @options[:format], 
        @options[:zoom], @options[:margin], @options[:orientation], 
        dump_cookies, @options[:rendering_time]].join(" ")
     end
