@@ -12,8 +12,8 @@ module Shrimp
   class Configuration
     attr_accessor :options
 
-    [:format, :margin, :zoom, :orientation, :tmpdir, :phantomjs, 
-     :rendering_time, :fail_silently].each do |m|
+    [:format, :margin, :zoom, :orientation, :tmpdir, :phantomjs,
+     :rendering_time, :time_out, :fail_silently].each do |m|
       define_method("#{m}=") do |val|
         @options[m]=val
       end
@@ -28,6 +28,7 @@ module Shrimp
           :tmpdir            => Dir.tmpdir,
           :phantomjs         => Phantom.default_executable,
           :rendering_time    => 30000,
+          :time_out          => 90000,
           :fail_silently     => false
       }
     end
