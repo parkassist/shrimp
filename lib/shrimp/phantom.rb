@@ -27,10 +27,10 @@ module Shrimp
     attr_accessor :source, :configuration, :outfile, :executable
     attr_reader :options, :cookies, :result, :error
     SCRIPT_FILE = File.expand_path('../rasterize.js', __FILE__)
-    
+
     def self.default_executable
-      (defined?(Bundler::GemfileError) ?  
-       `bundle exec which phantomjs` : 
+      (defined?(Bundler::GemfileError) ?
+       `bundle exec which phantomjs` :
        `which phantomjs`).chomp
     end
 
@@ -38,16 +38,16 @@ module Shrimp
     #
     # url_or_file - The url of the html document to render
     # options     - a hash with options for rendering
-    #   * format  - the paper format for the output eg: "5in*7.5in", 
+    #   * format  - the paper format for the output eg: "5in*7.5in",
     #               "10cm*20cm", "A4", "Letter"
     #   * zoom    - the viewport zoom factor
     #   * margin  - the margins for the pdf
     # cookies     - hash with cookies to use for rendering
-    # outfile     - optional path for the output file. a Tempfile will be 
+    # outfile     - optional path for the output file. a Tempfile will be
     #               created if not given
     #
     # Returns self
-    def initialize(executable, url_or_file, options = {}, cookies={}, 
+    def initialize(executable, url_or_file, options = {}, cookies={},
                    outfile = nil)
       @source  = Source.new(url_or_file)
       @options = Shrimp.configuration.options.merge(options)
@@ -74,9 +74,9 @@ module Shrimp
 
     # Public: Returns the phantom rasterize command
     def cmd
-      [@executable, SCRIPT_FILE, "'#{@source.to_s}'", @outfile, @options[:format], 
-       @options[:zoom], @options[:margin], @options[:orientation], 
-       dump_cookies, @options[:rendering_time]].join(" ")
+      [@executable, SCRIPT_FILE, "'#{@source.to_s}'", @outfile, @options[:format],
+       @options[:zoom], @options[:margin], @options[:orientation],
+       dump_cookies, @options[:rendering_time], @options[:time_out]].join(" ")
     end
 
     # Public: renders to pdf
@@ -100,18 +100,18 @@ module Shrimp
     end
 
     private
-    def tmpfile 
+    def tmpfile
       "#{options[:tmpdir]}/#{Digest::MD5.hexdigest((
                              Time.now.to_i + rand(9001)).to_s)}.pdf"
     end
 
     def dump_cookies
       host = @source.url? ? URI::parse(@source.to_s).host : "/"
-      json = @cookies.inject([]) { |a, (k, v)| 
-               a.push({ :name => k, :value => v, :domain => host }); a 
+      json = @cookies.inject([]) { |a, (k, v)|
+               a.push({ :name => k, :value => v, :domain => host }); a
              }.to_json
-      File.open("#{options[:tmpdir]}/#{rand}.cookies", 'w') { |f| 
-        f.puts json; f 
+      File.open("#{options[:tmpdir]}/#{rand}.cookies", 'w') { |f|
+        f.puts json; f
       }.path
     end
   end
